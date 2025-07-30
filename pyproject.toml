@@ -17,6 +17,7 @@ pydantic-ai = ">=0.2,<1.0.0"
 black = ">=24,<25.0.0"
 mypy  = ">=1,<2.0.0"
 pytest = ">=8,<9.0.0"
+jupyterlab  = ">=3.0,<4.0"
 
 [tool.poetry.scripts]
 agent = "agent.cli:main"

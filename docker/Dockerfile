@@ -57,4 +57,7 @@ RUN poetry install --with dev --no-interaction --no-ansi
 
 WORKDIR /workspace
 
-CMD ["bash"]
+EXPOSE 8888
+
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", \
+     "--NotebookApp.token=", "--NotebookApp.password=", "--notebook-dir=/workspace"]

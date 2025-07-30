@@ -1,9 +1,9 @@
 services:
-  agent-dev:
+  agent:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    image: agent-dev:latest
     volumes:
       - ..:/workspace
-    command: bash
+    ports:
+      - "8888:8888"
