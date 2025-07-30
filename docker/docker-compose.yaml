@@ -1,0 +1,9 @@
+services:
+  agent-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: agent-dev:latest
+    volumes:
+      - ..:/workspace
+    command: bash
