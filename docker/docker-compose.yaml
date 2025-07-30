@@ -6,4 +6,4 @@ services:
     volumes:
       - ..:/workspace
     ports:
-      - "8888:8888"
+      - "9999:9999"

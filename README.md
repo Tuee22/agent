@@ -22,5 +22,10 @@
 ### Installation
 
 ```bash
-# Latest release from PyPI (once published there)
-pip install agent
+pip install "agent @ git+https://github.com/Tuee22/agent.git@main"
+```
+
+or add to pyproject.toml
+```toml
+agent = { git = "https://github.com/Tuee22/agent.git", rev = "main" }
+```
