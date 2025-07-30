@@ -1,0 +1,37 @@
+# Local .terraform directories
+
+# Crash log files
+**/crash.log
+
+# data folder
+data/
+
+# Ignore any secret or private key files
+**/*.pem
+**/*.key
+
+# Ignore .DS_Store (macOS specific)
+**/.DS_Store
+
+# Ignore .Trash-0 (linux specific)
+**/.Trash-0
+
+# other extensions to ignore
+**/*.zip
+**/*.log
+**/*.txt
+**/*.bin
+**/*.pid
+**/*.ipynb_checkpoints
+
+**/__pycache__
+
+.git
+.env
+.gitignore
+.dockerignore
+**/.mypy_cache
+setup.sh
+**/.failed_artifacts
+**/.logs
+**/.data
