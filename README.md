@@ -3,7 +3,7 @@
 > **Status:** Proof‑of‑concept skeleton | **Type safety:** `mypy --strict` clean | **License:** MIT  
 
 **Agent** is a pure‑Python **library + CLI** that embeds a large Python code‑base into an in‑process vector store and drives an ✨ *intelligent refactoring loop* ✨ powered by [Pydantic AI](https://docs.pydantic.dev/pydantic-ai/).  
-It ships *batteries‑included*: deterministic offline embeddings, JSON‑persisted vector DB, and test / type‑check runners – all installable from PyPI with **no non‑Python services**.
+It ships *batteries‑included*: deterministic offline embeddings, JSON‑persisted vector DB, and test / type‑check runners – all installable from GitHub with **no non‑Python services**.
 
 ---
 
@@ -63,14 +63,18 @@ clients remain `NotImplementedError`.
 
 ## Installation
 
-```bash
-# Requires Python ≥ 3.12
-pip install agent                 # once published to PyPI
+### Quick install (pip + GitHub)
 
-# or from source
-git clone https://github.com/your‑org/agent
+```bash
+pip install "git+https://github.com/Tuee22/agent.git#egg=agent"
+```
+
+### Editable clone (recommended for hacking)
+
+```bash
+git clone https://github.com/Tuee22/agent.git
 cd agent
-poetry install --with dev
+pip install -e ".[dev]"          # or: poetry install --with dev
 ```
 
 Optional sanity check:
@@ -100,9 +104,9 @@ agent refactor --module src/data_processing.py                --objective "conve
 
 What happens:
 
-1. Agent retrieves semantic context for the file.
-2. LLM proposes an async refactor patch.
-3. File is written **and re‑indexed**.
+1. Agent retrieves semantic context for the file.  
+2. LLM proposes an async refactor patch.  
+3. File is written **and re‑indexed**.  
 4. `pytest` and `mypy --strict` run; results printed.
 
 ### Python API
@@ -131,7 +135,7 @@ for call in reply.tool_calls:
 
 1. **Embedding index**  
    * Files → 400‑line chunks → 128‑D hash embeddings.  
-   * Stored with line‑range metadata in `.agent/chroma/vectors.jsonl`.
+   * Stored with line‑range metadata in `.agent/chroma/vectors.jsonl`.  
 2. **Tools**  
    * `read_file` / `write_file` (write triggers re‑embedding).  
    * `code_search` performs cosine search for RAG context.  
