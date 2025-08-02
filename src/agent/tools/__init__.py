@@ -1,4 +1,4 @@
-"""Tool facade re‑exports."""
+"""Re‑exports for tool set."""
 from .file_ops import read_file, write_file
 from .search import code_search
 from .tests import run_tests

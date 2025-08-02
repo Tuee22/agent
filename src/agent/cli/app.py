@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import List
 
 import typer
 from typer import Typer
@@ -15,7 +16,7 @@ app: Typer = Typer(add_completion=False, help="Code‑assistant CLI")
 
 @app.command()
 def index(config: Path | None = None) -> None:
-    """Rebuild the local embedding index."""
+    """(Re)build the local embedding index."""
     settings = load(config)
     store = get_store(settings.chroma_dir)
     sync_all(settings.project_root, store, HashEmbeddingClient())
@@ -28,15 +29,12 @@ def refactor(
     objective: str,
     config: Path | None = None,
 ) -> None:
-    """
-    Ask the agent to refactor *module* according to *objective*.
-    (Demo – prints agent's response.)
-    """
+    """Ask the agent to refactor *module* with *objective*."""
     settings = load(config)
     agent = build_agent(settings)
-    msg = (
-        f"Refactor the file `{module}`.  Objective: {objective}.\n"
-        f"Apply best practices and ensure tests/type‑checks pass."
+    prompt = (
+        f"Refactor the file `{module}`. Objective: {objective}. "
+        "Ensure tests and type‑checks pass."
     )
-    result = agent.chat_sync(msg)
-    typer.echo(result.message.content)
+    reply = agent.chat_sync(prompt)
+    typer.echo(reply.message.content)

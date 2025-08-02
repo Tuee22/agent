@@ -1,17 +1,23 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence, List
+from typing import List, Sequence
 
 
 @dataclass(slots=True)
 class MCPFilesystemClient:
-    endpoint: str
+    """Local stand‑in for an MCP filesystem server."""
+    endpoint: str = "local"
 
     def read_file(self, path: Path) -> str:
-        raise NotImplementedError
+        return path.read_text(encoding="utf-8")
 
     def write_file(self, path: Path, content: str) -> str:
-        raise NotImplementedError
+        path.write_text(content, encoding="utf-8")
+        return "written"
 
     def list_files(self, globs: Sequence[str]) -> List[Path]:
-        raise NotImplementedError
+        root = Path(".").resolve()
+        out: List[Path] = []
+        for pattern in globs:
+            out.extend(root.glob(pattern))
+        return out

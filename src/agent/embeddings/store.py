@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from secrets import token_hex
-from typing import Final, List, Dict
+from typing import Dict, Final, List
 
 EmbeddingVector = List[float]
 
@@ -17,7 +17,7 @@ class DocumentMatch:
     id: str
     text: str
     metadata: Dict[str, str]
-    distance: float  # cosine distance (smaller = closer)
+    distance: float  # cosine distance (smaller == closer)
 
 
 @dataclass(slots=True)
@@ -29,7 +29,7 @@ class _Record:
 
 
 class VectorStore(ABC):
-    """Minimal vector DB interface (sync)."""
+    """Abstract vector store."""
 
     @abstractmethod
     def add_documents(
@@ -37,16 +37,12 @@ class VectorStore(ABC):
         texts: List[str],
         embeddings: List[EmbeddingVector],
         metadatas: List[Dict[str, str]],
-    ) -> List[str]:
-        ...
+    ) -> List[str]: ...
 
     @abstractmethod
     def similarity_search(
-        self,
-        embedding: EmbeddingVector,
-        k: int = 5,
-    ) -> List[DocumentMatch]:
-        ...
+        self, embedding: EmbeddingVector, k: int = 5
+    ) -> List[DocumentMatch]: ...
 
     @abstractmethod
     def upsert_document(
@@ -55,14 +51,16 @@ class VectorStore(ABC):
         text: str,
         embedding: EmbeddingVector,
         metadata: Dict[str, str],
-    ) -> None:
-        ...
+    ) -> None: ...
+
+    @abstractmethod
+    def get_document(self, id: str) -> _Record | None: ...
 
 
 class JsonVectorStore(VectorStore):
-    """Self‑contained JSONL‑persisted implementation (no external deps)."""
+    """Lightweight JSONL‑based store (self‑contained)."""
 
-    _STORE_FILE: Final[str] = "vectors.jsonl"
+    _FILE: Final[str] = "vectors.jsonl"
 
     def __init__(self, persist_dir: Path) -> None:
         self._dir = persist_dir
@@ -71,7 +69,7 @@ class JsonVectorStore(VectorStore):
         self._records: Dict[str, _Record] = {}
         self._load()
 
-    # ---------------------------- public API ---------------------------- #
+    # -------- public API -------- #
     def add_documents(
         self,
         texts: List[str],
@@ -79,12 +77,22 @@ class JsonVectorStore(VectorStore):
         metadatas: List[Dict[str, str]],
     ) -> List[str]:
         ids: List[str] = []
-        for text, emb, meta in zip(texts, embeddings, metadatas):
-            doc_id = token_hex(8)
-            self._records[doc_id] = _Record(doc_id, text, emb, meta)
-            ids.append(doc_id)
+        for txt, emb, meta in zip(texts, embeddings, metadatas):
+            _id = token_hex(8)
+            self._records[_id] = _Record(_id, txt, emb, meta)
+            ids.append(_id)
         self._flush()
         return ids
+
+    def upsert_document(
+        self,
+        id: str,
+        text: str,
+        embedding: EmbeddingVector,
+        metadata: Dict[str, str],
+    ) -> None:
+        self._records[id] = _Record(id, text, embedding, metadata)
+        self._flush()
 
     def similarity_search(
         self, embedding: EmbeddingVector, k: int = 5
@@ -100,19 +108,12 @@ class JsonVectorStore(VectorStore):
             DocumentMatch(r.id, r.text, r.metadata, dist) for r, dist in scored[:k]
         ]
 
-    def upsert_document(
-        self,
-        id: str,
-        text: str,
-        embedding: EmbeddingVector,
-        metadata: Dict[str, str],
-    ) -> None:
-        self._records[id] = _Record(id, text, embedding, metadata)
-        self._flush()
+    def get_document(self, id: str) -> _Record | None:
+        return self._records.get(id)
 
-    # --------------------------- persistence --------------------------- #
+    # -------- persistence -------- #
     def _path(self) -> Path:
-        return self._dir / self._STORE_FILE
+        return self._dir / self._FILE
 
     def _load(self) -> None:
         if not self._path().exists():

@@ -2,44 +2,32 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-from typing import Protocol, TypedDict, List
+from typing import List, Protocol
 
 from .chunker import chunk_code
 from .store import EmbeddingVector, VectorStore
 
 
 class EmbeddingClient(Protocol):
-    """Very small contract for an embedder."""
-
     def embed(self, text: str) -> EmbeddingVector: ...
 
 
 class HashEmbeddingClient:
-    """
-    Deterministic, offline embedder: converts SHA‑256 digest into fixed‑length
-    vector.  Replace with OpenAI when online.
-    """
+    """Deterministic offline embedder (SHA‑256 → 128‑D)."""
 
-    _DIM: int = 128
+    _DIM = 128
 
     def embed(self, text: str) -> EmbeddingVector:
         digest = hashlib.sha256(text.encode("utf-8")).digest()
         raw = (digest * (self._DIM // len(digest) + 1))[: self._DIM]
-        return [byte / 255.0 for byte in raw]
-
-
-class _Meta(TypedDict):
-    file_path: str
-    start_line: int
-    end_line: int
-    file_sha1: str
+        return [b / 255.0 for b in raw]
 
 
 def file_sha1(path: Path) -> str:
     return hashlib.sha1(path.read_bytes()).hexdigest()
 
 
-def _vector_id(path: Path, idx: int) -> str:
+def _vid(path: Path, idx: int) -> str:
     return f"{path}:{idx}"
 
 
@@ -49,26 +37,21 @@ def reembed_file(path: Path, store: VectorStore, client: EmbeddingClient) -> Non
     start_line = 0
     for idx, chunk in enumerate(chunks):
         lines = chunk.count("\n")
-        meta: _Meta = {
+        meta = {
             "file_path": str(path),
-            "start_line": start_line + 1,
-            "end_line": start_line + lines,
+            "start_line": str(start_line + 1),
+            "end_line": str(start_line + lines),
             "file_sha1": sha1,
         }
-        store.upsert_document(
-            _vector_id(path, idx),
-            chunk,
-            client.embed(chunk),
-            meta,  # type: ignore[arg-type]
-        )
+        store.upsert_document(_vid(path, idx), chunk, client.embed(chunk), meta)
         start_line += lines
 
 
-def reembed_ids(
-    ids: List[str], store: VectorStore, client: EmbeddingClient
-) -> None:
-    # Minimal placeholder: full implementation not required for baseline.
-    return None
+def reembed_ids(ids: List[str], store: VectorStore, client: EmbeddingClient) -> None:
+    """Refresh vectors given their IDs by re‑embedding the full file."""
+    for _id in ids:
+        path_str = _id.split(":", 1)[0]
+        reembed_file(Path(path_str), store, client)
 
 
 def sync_all(root: Path, store: VectorStore, client: EmbeddingClient) -> None:

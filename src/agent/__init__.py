@@ -1,4 +1,4 @@
-"""Public API surface for *agent*."""
+"""Public API for the *agent* package."""
 from pathlib import Path
 from typing import Final
 

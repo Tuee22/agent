@@ -7,7 +7,7 @@ from .embeddings.store import VectorStore
 
 @dataclass(slots=True)
 class Deps:
-    """Resolved singletons injected into the Agent."""
+    """Objects injected into the Agent."""
     settings: Settings
     vector_store: VectorStore
     project_root: Path

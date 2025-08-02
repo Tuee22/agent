@@ -1,6 +1,6 @@
-"""CLI entry‑point for Poetry."""
+"""Poetry console‑script entry."""
 from .app import app
 
 
-def main() -> None:  # Poetry calls this
+def main() -> None:
     app()

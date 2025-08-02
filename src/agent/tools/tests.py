@@ -4,7 +4,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, Sequence, Iterable, List
+from typing import Final, Iterable, List, Sequence
 
 
 @dataclass(slots=True)
@@ -14,7 +14,7 @@ class TestResult:
     output: str
 
 
-_SUMMARY_RE: Final[re.Pattern[str]] = re.compile(
+_SUMMARY: Final[re.Pattern[str]] = re.compile(
     r"=+\\s*(?P<passed>\\d+) passed.*?(?P<failed>\\d+) failed|"
     r"=+\\s*(?P<passed_only>\\d+) passed in",
     re.I | re.S,
@@ -37,7 +37,7 @@ def run_tests(
         capture_output=True,
     )
     output = proc.stdout + proc.stderr
-    m = _SUMMARY_RE.search(output)
+    m = _SUMMARY.search(output)
     if m is None:
         return TestResult(False, 1, output)
     if m.group("passed_only") is not None:

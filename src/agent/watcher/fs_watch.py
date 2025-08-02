@@ -1,19 +1,18 @@
 """
-Polling watcher (pure Python) – keeps vector index fresh without extra deps.
+Polling watcher to keep vector store in sync without external deps.
 """
-
 from __future__ import annotations
 
 import threading
 import time
 from pathlib import Path
-from typing import Mapping
+from typing import Dict
 
 from ..embeddings.indexer import EmbeddingClient, file_sha1, reembed_file
 from ..embeddings.store import VectorStore
 
 
-def _snapshot(root: Path) -> Mapping[Path, str]:
+def _snapshot(root: Path) -> Dict[Path, str]:
     return {p: file_sha1(p) for p in root.rglob("*.py")}
 
 
@@ -23,6 +22,7 @@ def start_watcher(
     client: EmbeddingClient,
     interval: float = 1.0,
 ) -> threading.Thread:
+    """Return a daemon thread that re‑indexes changed files."""
     state = _snapshot(root)
 
     def loop() -> None:

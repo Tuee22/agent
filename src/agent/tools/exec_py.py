@@ -13,9 +13,7 @@ class ExecResult:
 
 
 def run_python(code: str, timeout: int | None = None) -> ExecResult:
-    """
-    Execute *code* in a temporary file for portability (no shell quoting woes).
-    """
+    """Execute *code* in a temporary file."""
     with tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False) as fh:
         fh.write(code)
         fh.flush()
