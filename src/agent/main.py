@@ -33,6 +33,9 @@ def build_agent(settings: Settings) -> Agent:
     )
 
     embedder = HashEmbeddingClient()
+    # Automatically refresh vectors when Python files change
+    from .watcher import start_watcher
+    start_watcher(settings.project_root, store, embedder)
 
     # -------- tools -------- #
     agent.register_tool(read_file)
