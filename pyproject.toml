@@ -1,26 +1,28 @@
 [tool.poetry]
 name = "agent"
-version = "0.0.1"
-description = "A self-modifying, Pydantic-AI driven code-writing assistant."
+version = "0.1.0"
+description = "AutoGen‑powered multi‑agent assistant for large codebases."
 authors = ["Your Name <you@example.com>"]
-license = "MIT"
+packages = [{include = "agent", from = "src"}]
 readme = "README.md"
-packages = [{ include = "agent", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.12"
-pydantic = ">=2,<3.0.0"
-aiohttp  = ">=3,<4.0.0"
+python    = "^3.12"
+pydantic  = "^2.7"
+openai    = "^1.30"
+chromadb  = "^0.5"
+tiktoken  = "^0.7"
+autogen-agentchat = "^0.4"
+aiohttp   = "^3.9"
 
 [tool.poetry.group.dev.dependencies]
-black = ">=24,<25.0.0"
-mypy  = ">=1,<2.0.0"
-pytest = ">=8,<9.0.0"
-jupyterlab  = ">=3.0,<4.0"
+black = "^24.4"
+mypy  = "^1.10"
+pytest = "^8.2"
 
 [tool.poetry.scripts]
 agent = "agent.cli:main"
 
 [build-system]
-requires = ["poetry-core>=1.8.0"]
+requires      = ["poetry-core>=1.8"]
 build-backend = "poetry.core.masonry.api"
